@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-data:/data/db
+
+  cassandra:
+    image: cassandra:5.0
+    container_name: cassandra
+    restart: unless-stopped
+    ports:
+      - "9042:9042"
+      - "9160:9160"
+    environment:
+      CASSANDRA_CLUSTER_NAME: "AirportCluster"
+      CASSANDRA_NUM_TOKENS: 256
+      CASSANDRA_START_RPC: "true"
+      CASSANDRA_DC: "DC1"
+      CASSANDRA_RACK: "Rack1"
+      CASSANDRA_SEEDS: "cassandra"
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+
+  neo4j:
+    image: neo4j:5.23.0
+    container_name: neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"   # HTTP порт для браузера
+      - "7687:7687"   # Bolt порт
+    environment:
+      NEO4J_AUTH: neo4j/password  # Установка пароля
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+      - neo4j-import:/var/lib/neo4j/import
+
+volumes:
+  mongo-data:
+  cassandra-data:
+  neo4j-data:
+  neo4j-logs:
+  neo4j-import:
+
