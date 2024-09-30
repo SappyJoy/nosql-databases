@@ -1,0 +1,59 @@
+services:
+  mongo1:
+    image: mongo:8.0
+    container_name: mongo1
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo1_data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      - mongo-network
+  
+  mongo2:
+    image: mongo:8.0
+    container_name: mongo2
+    restart: always
+    ports:
+      - 27018:27017
+    volumes:
+      - mongo2_data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      - mongo-network
+  
+  mongo3:
+    image: mongo:8.0
+    container_name: mongo3
+    restart: always
+    ports:
+      - 27019:27017
+    volumes:
+      - mongo3_data:/data/db
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      - mongo-network
+
+  populate_mongo:
+    build:
+      context: .
+      dockerfile: Dockerfile.populate_mongo
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    environment:
+      - MONGO_URI=mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0
+    networks:
+      - mongo-network
+
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+
+networks:
+  mongo-network:
+    driver: bridge

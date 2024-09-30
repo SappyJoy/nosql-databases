@@ -1,0 +1,22 @@
+# Dockerfile.populate
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копирование файлов зависимостей
+COPY populate/neo4j/requirements.txt .
+
+# Установка Python зависимостей
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копирование скрипта
+COPY populate/neo4j/populate_neo4j.py .
+
+# Запуск скрипта
+CMD ["python", "populate_neo4j.py"]
+

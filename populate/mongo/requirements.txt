@@ -1,0 +1,4 @@
+pymongo
+faker
+faker_airtravel
+tqdm
