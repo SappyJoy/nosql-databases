@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from app.models.flight import Flight
-from app.database.cassandra import cassandra_session
-from app.database.neo4j import get_neo4j_session
+from models.flight import Flight
+from database.cassandra import cassandra_session
+from database.neo4j import get_neo4j_session
 import logging
 
 logging.basicConfig(level=logging.INFO)

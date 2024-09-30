@@ -13,7 +13,7 @@ services:
     volumes:
       - cassandra1_data:/var/lib/cassandra
     networks:
-      - cassandra-network
+      - app-network
     
   cassandra2:
     image: cassandra:5.0
@@ -32,7 +32,7 @@ services:
     volumes:
       - cassandra2_data:/var/lib/cassandra
     networks:
-      - cassandra-network
+      - app-network
     
   cassandra3:
     image: cassandra:5.0
@@ -51,7 +51,7 @@ services:
     volumes:
       - cassandra3_data:/var/lib/cassandra
     networks:
-      - cassandra-network
+      - app-network
 
   populate_cassandra:
     build:
@@ -66,7 +66,7 @@ services:
       - CASSANDRA_PORT=9042
       - CASSANDRA_KEYSPACE=airportflightmanagement
     networks:
-      - cassandra-network
+      - app-network
 
 volumes:
   cassandra1_data:
@@ -74,5 +74,5 @@ volumes:
   cassandra3_data:
 
 networks:
-  cassandra-network:
-    driver: bridge
+  app-network:
+    external: true

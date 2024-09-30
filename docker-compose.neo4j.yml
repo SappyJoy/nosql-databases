@@ -25,7 +25,7 @@ services:
       - neo4j1_import:/var/lib/neo4j/import
       - neo4j1_plugins:/plugins
     networks:
-      - neo4j-network
+      - app-network
 
   neo4j2:
     image: neo4j:5.23.0-enterprise
@@ -53,7 +53,7 @@ services:
       - neo4j2_import:/var/lib/neo4j/import
       - neo4j2_plugins:/plugins
     networks:
-      - neo4j-network
+      - app-network
 
   neo4j3:
     image: neo4j:5.23.0-enterprise
@@ -81,7 +81,7 @@ services:
       - neo4j3_import:/var/lib/neo4j/import
       - neo4j3_plugins:/plugins
     networks:
-      - neo4j-network
+      - app-network
 
   populate_neo4j:
     build:
@@ -97,7 +97,7 @@ services:
       - NEO4J_PASSWORD=password
       - NUM_RECORDS=2000000
     networks:
-      - neo4j-network
+      - app-network
 
 
 volumes:
@@ -115,6 +115,6 @@ volumes:
   neo4j3_plugins:
 
 networks:
-  neo4j-network:
-    driver: bridge
+  app-network:
+    external: true
 

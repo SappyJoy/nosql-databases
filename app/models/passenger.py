@@ -1,5 +1,3 @@
-# app/models/passenger.py
-
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import date, datetime

@@ -9,7 +9,7 @@ services:
       - mongo1_data:/data/db
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     networks:
-      - mongo-network
+      - app-network
   
   mongo2:
     image: mongo:8.0
@@ -21,7 +21,7 @@ services:
       - mongo2_data:/data/db
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     networks:
-      - mongo-network
+      - app-network
   
   mongo3:
     image: mongo:8.0
@@ -33,7 +33,7 @@ services:
       - mongo3_data:/data/db
     command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     networks:
-      - mongo-network
+      - app-network
 
   populate_mongo:
     build:
@@ -46,7 +46,7 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo1:27017,mongo2:27017,mongo3:27017/?replicaSet=rs0
     networks:
-      - mongo-network
+      - app-network
 
 
 volumes:
@@ -55,5 +55,5 @@ volumes:
   mongo3_data:
 
 networks:
-  mongo-network:
-    driver: bridge
+  app-network:
+    external: true

@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pymongo
+cassandra-driver
+neo4j
+tqdm
+faker
+faker_airtravel
+email_validator

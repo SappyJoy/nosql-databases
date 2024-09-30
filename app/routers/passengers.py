@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException
 from pymongo.errors import PyMongoError
 from typing import List
 import logging
-from app.models.passenger import Passenger
-from app.database.mongodb import passengers_collection
+from models.passenger import Passenger
+from database.mongodb import passengers_collection
 from fastapi.encoders import jsonable_encoder  # Добавлен импорт
 
 logging.basicConfig(level=logging.INFO)
