@@ -3,6 +3,10 @@ from typing import List
 from app.models.flight import Flight
 from app.database.cassandra import cassandra_session
 from app.database.neo4j import get_neo4j_session
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/flights",
@@ -13,6 +17,7 @@ router = APIRouter(
 
 @router.post("/", response_model=Flight)
 def create_flight(flight: Flight):
+    logger.info(f"Создание рейса с номером: {flight.FlightNumber}")
     # Проверка уникальности FlightNumber
     query = "SELECT flightnumber FROM flights WHERE flightnumber = %s"
     result = cassandra_session.execute(query, (flight.FlightNumber,))
@@ -65,6 +70,7 @@ def create_flight(flight: Flight):
 
 @router.get("/{flight_number}", response_model=Flight)
 def get_flight(flight_number: str):
+    logger.info(f"Получение рейса с номером: {flight_number}")
     query = "SELECT * FROM flights WHERE flightnumber = %s"
     result = cassandra_session.execute(query, (flight_number,))
     flight = result.one()
@@ -85,6 +91,7 @@ def get_flight(flight_number: str):
 
 @router.put("/{flight_number}", response_model=Flight)
 def update_flight(flight_number: str, flight: Flight):
+    logger.info(f"Обновление рейса с номером: {flight_number}")
     update_query = """
         UPDATE flights
         SET 
@@ -143,6 +150,7 @@ def update_flight(flight_number: str, flight: Flight):
 
 @router.delete("/{flight_number}")
 def delete_flight(flight_number: str):
+    logger.info(f"Удаление рейса с номером: {flight_number}")
     delete_query = "DELETE FROM flights WHERE flightnumber = ?"
     delete_result = cassandra_session.execute(delete_query, (flight_number,))
     if delete_result.was_applied:
@@ -161,6 +169,7 @@ def delete_flight(flight_number: str):
 
 @router.get("/passenger/{passenger_id}", response_model=List[Flight])
 def get_flights_by_passenger(passenger_id: str):
+    logger.info(f"Получение рейсов для пассажира с ID: {passenger_id}")
     query = """
         MATCH (p:Passenger {PassengerID: $passenger_id})-[:REGISTERED_ON]->(f:Flight)
         RETURN f
@@ -185,6 +194,7 @@ def get_flights_by_passenger(passenger_id: str):
 
 @router.get("/average_tickets", response_model=float)
 def get_average_tickets_per_flight():
+    logger.info(f"Получение среднего количества билетов на рейс")
     # Пример использования функции (если была создана пользовательская функция в Cassandra)
     query = "SELECT airportflightmanagement.avg_tickets_per_flight() AS average"
     result = cassandra_session.execute(query)

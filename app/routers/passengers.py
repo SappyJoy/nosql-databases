@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from pymongo.errors import PyMongoError
 from typing import List
 import logging
 from app.models.passenger import Passenger
@@ -28,7 +29,6 @@ def passenger_helper(passenger) -> Passenger:
     )
 
 # CRUD операции
-
 @router.post("/", response_model=Passenger)
 def create_passenger(passenger: Passenger):
     logger.info(f"Создание пассажира с ID: {passenger.PassengerID}")
@@ -36,13 +36,18 @@ def create_passenger(passenger: Passenger):
     if passengers_collection.find_one({"PassengerID": passenger.PassengerID}):
         raise HTTPException(status_code=400, detail="PassengerID уже существует")
     
-    # Использование jsonable_encoder для преобразования данных
-    passenger_dict = jsonable_encoder(passenger.dict())
-    passengers_collection.insert_one(passenger_dict)
-    return passenger
+    try:
+        # Использование jsonable_encoder для преобразования данных
+        passenger_dict = jsonable_encoder(passenger.dict())
+        passengers_collection.insert_one(passenger_dict)
+        return passenger
+    except PyMongoError as e:
+        logger.error(f"Ошибка при вставке пассажира: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка при вставке пассажира в базу данных")
 
 @router.get("/{passenger_id}", response_model=Passenger)
 def get_passenger(passenger_id: str):
+    logger.info(f"Получение пассажира с ID: {passenger_id}")
     passenger = passengers_collection.find_one({"PassengerID": passenger_id})
     if not passenger:
         raise HTTPException(status_code=404, detail="Пассажир не найден")
@@ -50,6 +55,7 @@ def get_passenger(passenger_id: str):
 
 @router.put("/{passenger_id}", response_model=Passenger)
 def update_passenger(passenger_id: str, passenger: Passenger):
+    logger.info(f"Обновление пассажира с ID: {passenger_id}")
     update_result = passengers_collection.update_one(
         {"PassengerID": passenger_id},
         {"$set": passenger.dict(exclude_unset=True)}
@@ -62,6 +68,7 @@ def update_passenger(passenger_id: str, passenger: Passenger):
 
 @router.delete("/{passenger_id}")
 def delete_passenger(passenger_id: str):
+    logger.info(f"Удаление пассажира с ID: {passenger_id}")
     delete_result = passengers_collection.delete_one({"PassengerID": passenger_id})
     if delete_result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Пассажир не найден")
@@ -71,6 +78,7 @@ def delete_passenger(passenger_id: str):
 
 @router.get("/tickets/count/{min_tickets}", response_model=List[Passenger])
 def get_passengers_with_min_tickets(min_tickets: int):
+    logger.info(f"Получение пассажиров с количеством билетов не менее {min_tickets}")
     pipeline = [
         {"$match": {"Tickets": {"$exists": True}}},
         {"$project": {
@@ -89,4 +97,5 @@ def get_passengers_with_min_tickets(min_tickets: int):
     ]
     
     passengers = passengers_collection.aggregate(pipeline)
+    logger.info(f"Найдено пассажиров: {passengers.count()}")
     return [passenger_helper(p) for p in passengers]
